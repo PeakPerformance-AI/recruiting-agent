@@ -118,34 +118,22 @@ def fetch_brightdata(linkedin_url: str) -> Optional[str]:
                 "include_errors": "true",
                 "type": "discover_new",
                 "discover_by": "url",
+                "format": "json",
+                "sync_mode": "sync",
             },
             headers=headers,
             json=[{"url": linkedin_url}],
-            timeout=30,
+            timeout=60,
         )
         if r.status_code not in (200, 202):
             return None
 
-        snapshot_id = r.json().get("snapshot_id")
-        if not snapshot_id:
-            return None
-
-        # Poll until data is ready
-        for _ in range(20):
-            time.sleep(3)
-            poll = requests.get(
-                f"https://api.brightdata.com/datasets/v3/snapshot/{snapshot_id}",
-                params={"format": "json"},
-                headers=headers,
-                timeout=15,
-            )
-            if poll.status_code == 200:
-                try:
-                    data = poll.json()
-                    if isinstance(data, list) and len(data) > 0:
-                        return format_brightdata_profile(data[0])
-                except Exception:
-                    continue
+        try:
+            data = r.json()
+            if isinstance(data, list) and len(data) > 0:
+                return format_brightdata_profile(data[0])
+        except Exception:
+            pass
         return None
     except Exception:
         return None
