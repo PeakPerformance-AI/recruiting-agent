@@ -106,7 +106,7 @@ st.markdown("""
 with st.sidebar:
     st.markdown("## ⚙️ Configuration")
     anthropic_key = st.text_input("Anthropic API Key", type="password",
-                                  placeholder="sk-ant-...")
+                                  anthropic_key = st.secrets["ANTHROPIC_KEY"]
     st.markdown("---")
     st.markdown("### LinkedIn Data Source")
     data_source = st.radio("How will you provide profiles?",
