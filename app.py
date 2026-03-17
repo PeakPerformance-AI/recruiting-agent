@@ -1,4 +1,40 @@
-cd ~/Desktop/recruiting_agent/files\ 2 && cat app.py | pbcopy && echo "✅ Copied!"        font-size: 13px;
+import streamlit as st
+import anthropic
+import json
+import requests
+import pandas as pd
+import io
+import csv
+import time
+from typing import Optional
+
+# ── Page config ───────────────────────────────────────────────────────────────
+st.set_page_config(
+    page_title="AI Recruiting Agent",
+    page_icon="🎯",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
+
+# ── Custom CSS ────────────────────────────────────────────────────────────────
+st.markdown("""
+<style>
+    .main { background-color: #f8f9fb; }
+    .stApp { background-color: #f8f9fb; }
+    .candidate-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 20px 24px;
+        margin-bottom: 16px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .rank-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #3b82f6, #6366f1);
+        color: white;
+        font-weight: 700;
+        font-size: 13px;
         padding: 4px 12px;
         border-radius: 20px;
         margin-right: 10px;
@@ -86,10 +122,12 @@ def fetch_brightdata(linkedin_url: str) -> Optional[str]:
             timeout=60,
         )
         if r.status_code != 200:
+            st.warning(f"Bright Data trigger failed: {r.status_code} — {r.text[:200]}")
             return None
 
         snapshot_id = r.json().get("snapshot_id")
         if not snapshot_id:
+            st.warning(f"No snapshot_id in response: {r.text[:200]}")
             return None
 
         for _ in range(20):
