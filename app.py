@@ -131,7 +131,7 @@ def fetch_brightdata(linkedin_url: str) -> Optional[str]:
             return None
 
         for _ in range(20):
-            time.sleep(3)
+            time.sleep(30)
             poll = requests.get(
                 f"https://api.brightdata.com/datasets/v3/snapshot/{snapshot_id}",
                 params={"format": "json"},
